@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Map - World Time Zones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            position: relative;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1.5rem;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .page-controls {
+            position: fixed;
+            top: 80px;
+            width: 100%;
+            z-index: 1000;
+            padding: 0 20px;
+            pointer-events: none;
+        }
+
+        .page-controls > * {
+            pointer-events: auto;
+        }
+
+        .timezone-toggle {
+            position: absolute;
+            left: 20px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: none;
+            color: #333;
+        }
+
+        .info-toggle {
+            position: absolute;
+            right: 20px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: none;
+            color: #333;
+        }
+
+        .timezone-toggle:hover,
+        .info-toggle:hover {
+            background: #f5f5f5;
+        }
+
+        .info-banner {
+            position: absolute;
+            top: 45px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 999;
+            display: none;
+        }
+
+        .info-banner h3 {
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .info-banner p {
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .timezone-info {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .timezone-info h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .country-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .country-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .country-flag {
+            font-size: 1.5rem;
+        }
+
+        .fullscreen-button {
+            position: absolute;
+            bottom: 20px;
+            right: 10px;
+            z-index: 999;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            border: none;
+            color: #333;
+            font-size: 1.2rem;
+            line-height: 1;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-button:hover {
+            background: #f5f5f5;
+        }
+
+        .map-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .map-fullscreen #map {
+            height: 100vh !important;
+            width: 100vw !important;
+            border-radius: 0 !important;
+        }
+
+        .leaflet-popup-content {
+            margin: 0.5rem;
+        }
+
+        .popup-content {
+            padding: 0.5rem;
+        }
+
+        .popup-content h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .popup-content p {
+            margin: 0.25rem 0;
+            color: #666;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo a:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo"><a href="/">World Time Zones</a></div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/favorites">Favorites</a>
+                <a href="/map">Map</a>
+                <a href="/about">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="page-controls">
+        <button class="timezone-toggle" id="timezone-toggle">🌐 Show Time Zones</button>
+        <button class="info-toggle">ℹ️ About Time Zones</button>
+        <div class="info-banner">
+            <h3>About This Time Zone Map</h3>
+            <p>This map shows actual time zones based on official geographical boundaries using GeoJSON data.</p>
+            <p>Time zones follow political borders and regional decisions rather than strict longitudinal lines, which is why you'll see irregular shapes and variations across different regions.</p>
+            <p>The colors indicate the offset from UTC (Coordinated Universal Time), with different shades representing varying time differences. Click on any region to see its specific time zone details.</p>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="map-container">
+            <div id="map"></div>
+            <button class="fullscreen-button" id="fullscreen-toggle" aria-label="Toggle fullscreen">⤢</button>
+        </div>
+        <div class="timezone-info">
+            <h2>Currently selected timezone: <span id="selected-timezone">Click a region to select</span></h2>
+            <div id="country-list" class="country-list">
+                <!-- Countries will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 World Time Zones. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // Initialize map with custom CRS to enable wrapping
+        const map = L.map('map', {
+            center: [20, 0],
+            zoom: 2,
+            maxBounds: [[-90, -Infinity], [90, Infinity]],
+            minZoom: 1,
+            worldCopyJump: true
+        });
+
+        // Add the tile layer with noWrap: false to enable infinite scrolling
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            noWrap: false,
+            bounds: [[-90, -Infinity], [90, Infinity]]
+        }).addTo(map);
+
+        // Function to calculate terminator coordinates with corrected solar position
+        function calculateTerminator() {
+            const now = new Date();
+            const julianDate = (now.getTime() / 86400000) + 2440587.5;
+            const century = (julianDate - 2451545) / 36525;
+            
+            // Calculate solar position with time correction
+            const GMST = (280.46061837 + 360.98564736629 * (julianDate - 2451545.0)) % 360;
+            const meanLongitude = (280.460 + 36000.77 * century) % 360;
+            const meanAnomaly = (357.528 + 35999.05 * century) % 360;
+            const equationOfCenter = 1.915 * Math.sin(meanAnomaly * Math.PI / 180) 
+                                   + 0.02 * Math.sin(2 * meanAnomaly * Math.PI / 180);
+            const eclipticLongitude = meanLongitude + equationOfCenter;
+            const obliquity = 23.439 - 0.013 * century;
+            
+            const declination = Math.asin(Math.sin(obliquity * Math.PI / 180) 
+                              * Math.sin(eclipticLongitude * Math.PI / 180)) * 180 / Math.PI;
+            const rightAscension = Math.atan2(Math.cos(obliquity * Math.PI / 180) 
+                                 * Math.sin(eclipticLongitude * Math.PI / 180), 
+                                 Math.cos(eclipticLongitude * Math.PI / 180)) * 180 / Math.PI;
+            
+            const adjustedRA = rightAscension - GMST;
+            
+            const terminatorCoords = [];
+            for (let lon = -180; lon <= 180; lon += 2) {
+                const localHourAngle = lon - adjustedRA;
+                const latRad = Math.atan(-Math.cos(localHourAngle * Math.PI / 180) 
+                             / Math.tan(declination * Math.PI / 180));
+                const lat = latRad * 180 / Math.PI;
+                terminatorCoords.push([lat, lon]);
+            }
+            
+            return { 
+                coords: terminatorCoords, 
+                rightAscension: adjustedRA,
+                isDay: (lon) => {
+                    const localHourAngle = lon - adjustedRA;
+                    return Math.abs(localHourAngle) < 90;
+                }
+            };
+        }
+
+        // Animation state variables
+        let animationFrameId;
+        let lastDrawTime = 0;
+        let nightPolygon;
+        let terminatorVisible = false;
+
+        // Function to draw terminator and night shading
+        function drawTerminator(timestamp) {
+            const elapsed = timestamp - lastDrawTime;
+            
+            if (elapsed > 100) {
+                if (window.terminatorLine) {
+                    map.removeLayer(window.terminatorLine);
+                }
+                if (nightPolygon) {
+                    map.removeLayer(nightPolygon);
+                }
+
+                const { coords, rightAscension, isDay } = calculateTerminator();
+                
+                window.terminatorLine = L.polyline(coords, {
+                    color: '#FFA500',
+                    weight: 2,
+                    opacity: 0.7,
+                    smoothFactor: 1.5,
+                    dashArray: '5, 5'
+                }).addTo(map);
+                
+                const nightCoords = [
+                    ...coords,
+                    [90, coords[coords.length - 1][1]],
+                    [90, -180],
+                    [-90, -180],
+                    [-90, coords[0][1]],
+                    coords[0]
+                ];
+
+                const centerLon = (coords[0][1] + coords[coords.length - 1][1]) / 2;
+                if (isDay(centerLon)) {
+                    nightCoords.reverse();
+                }
+
+                nightPolygon = L.polygon(nightCoords, {
+                    color: '#000',
+                    weight: 0,
+                    fillColor: '#000',
+                    fillOpacity: 0.2,
+                    smoothFactor: 1.5
+                }).addTo(map);
+
+                lastDrawTime = timestamp;
+            }
+            
+            if (terminatorVisible) {
+                animationFrameId = requestAnimationFrame(drawTerminator);
+            }
+        }
+
+        // Function to get color based on UTC offset
+        function getColorForOffset(offset) {
+            const normalized = (parseFloat(offset) + 12) / 24;
+            return `hsl(${normalized * 240}, 70%, 50%)`;
+        }
+
+        // Function to get local time for a timezone
+        function getLocalTime(offset) {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            return new Date(utc + (3600000 * offset)).toLocaleTimeString();
+        }
+
+        // Update the timezone info display
+        function updateTimezoneInfo(tzid) {
+            const selectedTimezone = document.getElementById('selected-timezone');
+            selectedTimezone.textContent = tzid;
+        }
+
+        let timezoneBorders = null;
+        let timezonesVisible = false;
+
+        function loadTimezoneBorders() {
+        fetch('/api/timezone-borders')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (timezoneBorders) {
+                map.removeLayer(timezoneBorders);
+            }
+
+            timezoneBorders = L.geoJSON(data, {
+                style: function(feature) {
+                    return {
+                        color: '#333',
+                        weight: 1,
+                        fillColor: getColorForOffset(feature.properties.offset),
+                        fillOpacity: 0.3
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    // Remove popup binding and only keep the click handler
+                    layer.on('click', function(e) {
+                        updateTimezoneInfo(feature.properties.tzid);
+                    });
+
+                    // Keep hover effects
+                    layer.on('mouseover', function(e) {
+                        this.setStyle({
+                            fillOpacity: 0.6
+                        });
+                    });
+                    layer.on('mouseout', function(e) {
+                        this.setStyle({
+                            fillOpacity: 0.3
+                        });
+                    });
+                }
+            }).addTo(map);
+        })
+        .catch(error => {
+            console.error('Error loading timezone data:', error);
+            alert('Failed to load timezone data. Please try again later.');
+        });
+    }
+
+        // Add terminator toggle button
+        const terminatorToggle = document.createElement('button');
+        terminatorToggle.className = 'timezone-toggle';
+        terminatorToggle.style.top = '120px';
+        terminatorToggle.textContent = '🌓 Show Day/Night';
+        document.querySelector('.page-controls').appendChild(terminatorToggle);
+
+        // Toggle button functionality
+        document.getElementById('timezone-toggle').addEventListener('click', () => {
+            timezonesVisible = !timezonesVisible;
+            const button = document.getElementById('timezone-toggle');
+            button.textContent = timezonesVisible ? '🌐 Hide Time Zones' : '🌐 Show Time Zones';
+            
+            if (timezonesVisible) {
+                if (!timezoneBorders) {
+                    loadTimezoneBorders();
+                } else {
+                    map.addLayer(timezoneBorders);
+                }
+            } else if (timezoneBorders) {
+                map.removeLayer(timezoneBorders);
+            }
+        });
+
+        // Modified toggle function for terminator
+        function toggleTerminator() {
+            terminatorVisible = !terminatorVisible;
+            terminatorToggle.textContent = terminatorVisible ? '🌓 Hide Day/Night' : '🌓 Show Day/Night';
+            
+            if (terminatorVisible) {
+                lastDrawTime = 0;
+                animationFrameId = requestAnimationFrame(drawTerminator);
+            } else {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                if (window.terminatorLine) {
+                    map.removeLayer(window.terminatorLine);
+                }
+                if (nightPolygon) {
+                    map.removeLayer(nightPolygon);
+                }
+            }
+        }
+
+        // Add event listener for terminator toggle
+        terminatorToggle.addEventListener('click', toggleTerminator);
+
+        // Info toggle functionality
+        const infoToggle = document.querySelector('.info-toggle');
+        const infoBanner = document.querySelector('.info-banner');
+        let infoVisible = false;
+
+        function toggleInfoBanner() {
+            infoVisible = !infoVisible;
+            infoBanner.style.display = infoVisible ? 'block' : 'none';
+            infoToggle.textContent = infoVisible ? '✕ Close' : 'ℹ️ About Time Zones';
+        }
+
+        infoToggle.addEventListener('click', toggleInfoBanner);
+
+        // Close info banner when clicking outside
+        document.addEventListener('click', (e) => {
+            if (infoVisible && !infoBanner.contains(e.target) && !infoToggle.contains(e.target)) {
+                toggleInfoBanner();
+            }
+        });
+
+        // Fullscreen functionality
+        const mapContainer = document.querySelector('.map-container');
+        const fullscreenButton = document.getElementById('fullscreen-toggle');
+        let isFullscreen = false;
+
+        function toggleFullscreen() {
+            isFullscreen = !isFullscreen;
+            mapContainer.classList.toggle('map-fullscreen');
+            fullscreenButton.textContent = isFullscreen ? '⤓' : '⤢';
+            fullscreenButton.setAttribute('aria-label', 
+                isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'
+            );
+            map.invalidateSize();
+        }
+
+        // Handle ESC key to exit fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFullscreen) {
+                toggleFullscreen();
+            }
+        });
+
+        fullscreenButton.addEventListener('click', toggleFullscreen);
+    </script>
+</body>
+</html>
