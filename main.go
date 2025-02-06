@@ -775,3 +775,5 @@ func calculateTime(timezone string) string {
 	localTime := now.Add(time.Duration(hours)*time.Hour + time.Duration(minutes)*time.Minute)
 	return localTime.Format("15:04")
 }
+
+// test
