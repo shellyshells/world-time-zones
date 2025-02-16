@@ -504,6 +504,7 @@ func main() {
 	http.HandleFunc("/map", handleMap)
 	http.HandleFunc("/api/countries", handleCountriesAPI)
 	http.HandleFunc("/api/timezone-borders", handleTimezoneBorders)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	// Start server
 	log.Println("Server starting on http://localhost:8080")

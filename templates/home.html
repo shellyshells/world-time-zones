@@ -344,6 +344,92 @@
             font-size: 0.8rem;
         }
 
+        
+        .tab-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 20px);
+            overflow: hidden;
+            margin-top: -20px;
+        }
+
+        .tab-header {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem;
+            padding-right: 40px;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.9rem;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #333;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: #333;
+        }
+
+        .tab-btn:hover::after {
+            transform: scaleX(0.5);
+        }
+
+        .tab-btn.active {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .tab-btn.active::after {
+            transform: scaleX(1);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 0 0.5rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 0.5rem;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .no-data-icon {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+            color: #999;
+        }
+
         .pagination {
             display: flex;
             justify-content: center;
@@ -471,46 +557,91 @@
                     <button class="favorite-btn" onclick="toggleFavorite(event, '{{.Name}}')" aria-label="Toggle favorite" data-favorited="{{.IsFavorite}}">
                         {{if .IsFavorite}}★{{else}}☆{{end}}
                     </button>
-                    <div class="country-details-extended">
-                        <h3>{{.Name}} Details</h3>
-                        <div class="details-grid">
-                            <div class="detail-item">
-                                <span class="detail-label">Population:</span>
-                                <span class="detail-value">{{.Population}}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Area:</span>
-                                <span class="detail-value">{{.Area}} km²</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Languages:</span>
-                                <span class="detail-value">{{range $index, $lang := .Languages}}{{if $index}}, {{end}}{{$lang}}{{end}}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Currency:</span>
-                                <span class="detail-value">{{.Currency}}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Calling Code:</span>
-                                <span class="detail-value">{{.CallingCode}}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Driving Side:</span>
-                                <span class="detail-value">{{.DrivingSide}}</span>
+                    <div class="tab-container">
+                        <div class="tab-header">
+                            <button class="tab-btn active" onclick="switchTab(event, 'general-tab-{{.Name}}')">General</button>
+                            <button class="tab-btn" onclick="switchTab(event, 'hdi-tab-{{.Name}}')">HDI</button>
+                        </div>
+                
+                        <div id="general-tab-{{.Name}}" class="tab-content active">
+                            <div class="country-details-extended">
+                                <h3>{{.Name}} Details</h3>
+                                <div class="details-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Population:</span>
+                                        <span class="detail-value">{{.Population}}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Area:</span>
+                                        <span class="detail-value">{{.Area}} km²</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Languages:</span>
+                                        <span class="detail-value">{{range $index, $lang := .Languages}}{{if $index}}, {{end}}{{$lang}}{{end}}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Currency:</span>
+                                        <span class="detail-value">{{.Currency}}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Calling Code:</span>
+                                        <span class="detail-value">{{.CallingCode}}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Driving Side:</span>
+                                        <span class="detail-value">{{.DrivingSide}}</span>
+                                    </div>
+                                </div>
+                
+                                <div class="border-countries">
+                                    <h4>Bordering Countries:</h4>
+                                    <div class="border-list">
+                                        {{if .Borders}}
+                                            {{range .Borders}}
+                                            <span class="border-country">{{.}}</span>
+                                            {{end}}
+                                        {{else}}
+                                            <div class="no-borders">
+                                                <span class="no-borders-icon">🏝️</span>
+                                                <span>Island nation or territory without land borders</span>
+                                            </div>
+                                        {{end}}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="border-countries">
-                            <h4>Bordering Countries:</h4>
-                            <div class="border-list">
-                                {{if .Borders}}
-                                    {{range .Borders}}
-                                    <span class="border-country">{{.}}</span>
-                                    {{end}}
-                                {{else}}
-                                    <div class="no-borders">
-                                        <span class="no-borders-icon">🏝️</span>
-                                        <span>Island nation or territory without land borders</span>
+                
+                        <div id="hdi-tab-{{.Name}}" class="tab-content">
+                            <div class="country-details-extended">
+                                <h3>Human Development Index</h3>
+                                {{if .HDI.HDIValue}}
+                                <div class="details-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">HDI Rank:</span>
+                                        <span class="detail-value">{{.HDI.HDIRank}}</span>
                                     </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">HDI Value:</span>
+                                        <span class="detail-value">{{printf "%.3f" .HDI.HDIValue}}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Life Expectancy:</span>
+                                        <span class="detail-value">{{printf "%.1f" .HDI.LifeExpect}} years</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">School Years:</span>
+                                        <span class="detail-value">{{printf "%.1f" .HDI.SchoolYears}} years</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">GNI per capita:</span>
+                                        <span class="detail-value">{{.HDI.GNIPerCap}}</span>
+                                    </div>
+                                </div>
+                                {{else}}
+                                <div class="no-data">
+                                    <span class="no-data-icon">📊</span>
+                                    <span>No HDI data available</span>
+                                </div>
                                 {{end}}
                             </div>
                         </div>
@@ -645,6 +776,21 @@
                 }
             });
         });
+
+        function switchTab(event, tabId) {
+        event.stopPropagation(); // Prevent card from flipping when clicking tabs
+
+        // Get the container of the clicked tab
+        const tabContainer = event.target.closest('.tab-container');
+
+        // Remove active class from all tabs and contents in this container
+        tabContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        tabContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        // Add active class to clicked tab and corresponding content
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
     </script>
 </body>
 </html>

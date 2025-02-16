@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - World Time Zones</title>
+    <style>
+        /* Original styles remain the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1.5rem;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            padding-bottom: 5rem;
+        }
+
+        .section {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f5f5f5;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 6px;
+        }
+
+        .api-endpoints {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .endpoint {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .endpoint code {
+            background: #e9ecef;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* New styles for slideshow */
+        .slideshow-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            text-align: center;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide img {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .slide-caption {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #666;
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -22px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .prev:hover, .next:hover {
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .dot-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .dot {
+            cursor: pointer;
+            height: 15px;
+            width: 15px;
+            margin: 0 2px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.6s ease;
+        }
+
+        .dot.active, .dot:hover {
+            background-color: #717171;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header and navigation remain the same -->
+    <header>
+        <nav>
+            <div class="logo">World Time Zones</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/favorites">Favorites</a>
+                <a href="/map">Map</a>
+                <a href="/about">About</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Original sections remain the same -->
+        <section class="section">
+            <h1>About World Time Zones</h1>
+            <p>A comprehensive web application built with Go that provides real-time information about different countries, their time zones, and development statistics.</p>
+        </section>
+
+        <section class="section">
+            <h2>Core Features</h2>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h3>Search System</h3>
+                    <p>Search countries by name, capital, or region with real-time results.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Filtering System</h3>
+                    <p>Filter countries by timezone names, regions (continents), and current times in the countries.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Pagination</h3>
+                    <p>Browse through country listings with 12 items per page for better navigation.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Favorites</h3>
+                    <p>Save and manage your favorite countries with persistent storage.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Data Sources</h2>
+            <div class="api-endpoints">
+                <div class="endpoint">
+                    <h3>REST Countries API</h3>
+                    <p>Primary source for country data, providing:</p>
+                    <code>name, capital, region, flag, timezones, population, area, languages, currencies, idd, car, borders</code>
+                </div>
+                <div class="endpoint">
+                    <h3>HDI Statistics</h3>
+                    <p>Human Development Index data from UNDP Human Development Report 2023/2024</p>
+                    <p>Source: <a href="https://hdr.undp.org/data-center/human-development-index" target="_blank" rel="noopener noreferrer">HDI Data Center</a></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Map Features</h2>
+            <p>The interactive map is built using Leaflet.js and features two custom overlay layers:</p>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h3>Timezone Boundaries Overlay</h3>
+                    <p>Interactive timezone boundaries using data from the timezone-boundary-builder project (specifically the 'timezones-with-oceans-now.geojson.zip' file). Source: <a href="https://github.com/evansiroky/timezone-boundary-builder/releases" target="_blank" rel="noopener noreferrer">timezone-boundary-builder releases</a></p>
+                </div>
+                <div class="feature-card">
+                    <h3>Live Terminator Line Overlay</h3>
+                    <p>Custom-built overlay showing real-time day/night boundaries across the globe with an animated terminator line.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Technical Implementation</h2>
+            <p>The timezone boundary data is processed using geojsplit to optimize performance. This splits the large GeoJSON file (timezones-with-oceans-now.geojson.zip) into smaller, more manageable chunks while maintaining full functionality.</p>
+        </section>
+
+        <!-- New slideshow section -->
+        <section class="section">
+            <h2>Development Progress</h2>
+            <div class="slideshow-container">
+                <div class="slide">
+                    <img src="/static/images/1.png" alt="Incorrect timezone borders overlay">
+                    <div class="slide-caption">Incorrect timezone borders overlay</div>
+                </div>
+            
+                <div class="slide">
+                    <img src="/static/images/2.png" alt="Missing timezones in waters and Antarctica">
+                    <div class="slide-caption">Missing timezones in waters and Antarctica</div>
+                </div>
+            
+                <div class="slide">
+                    <img src="/static/images/3.png" alt="Flawed representation of the terminator line">
+                    <div class="slide-caption">Flawed representation of the terminator line</div>
+                </div>
+            
+                <div class="slide">
+                    <img src="/static/images/4.png" alt="Miscellaneous">
+                    <div class="slide-caption">Miscellaneous</div>
+                </div>
+            
+                <a class="prev" onclick="changeSlide(-1)">❮</a>
+                <a class="next" onclick="changeSlide(1)">❯</a>
+            </div>
+
+            <div class="dot-container">
+                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+                <span class="dot" onclick="currentSlide(4)"></span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 World Time Zones. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function changeSlide(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let slides = document.getElementsByClassName("slide");
+            let dots = document.getElementsByClassName("dot");
+            
+            if (n > slides.length) {slideIndex = 1}
+            if (n < 1) {slideIndex = slides.length}
+            
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            
+            slides[slideIndex-1].style.display = "block";
+            dots[slideIndex-1].className += " active";
+        }
+    </script>
+</body>
+</html>
