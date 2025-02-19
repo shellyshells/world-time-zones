@@ -69,20 +69,29 @@
 
         .page-controls {
             position: fixed;
-            top: 80px;
-            width: 100%;
+            /* Add header height (56px) + main-content margin (2rem = 32px) */
+            top: 88px;
+            left: 20px;
             z-index: 1000;
-            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+    
+        .info-control {
+            position: fixed;
+            /* Add header height (56px) + main-content margin (2rem = 32px) */
+            top: 88px;
+            right: 20px;
+            z-index: 1000;
             pointer-events: none;
         }
 
-        .page-controls > * {
+
+        .control-button, 
+        .info-control .control-button {
             pointer-events: auto;
-        }
-
-        .timezone-toggle {
-            position: absolute;
-            left: 20px;
             background: white;
             padding: 8px 12px;
             border-radius: 4px;
@@ -91,29 +100,34 @@
             font-size: 0.9rem;
             border: none;
             color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            min-width: 160px;
         }
 
-        .info-toggle {
-            position: absolute;
-            right: 20px;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            cursor: pointer;
-            font-size: 0.9rem;
-            border: none;
-            color: #333;
-        }
-
-        .timezone-toggle:hover,
-        .info-toggle:hover {
+        .control-button:hover,
+        .info-control .control-button:hover {
             background: #f5f5f5;
+            transform: translateX(3px);
+        }
+
+        .control-button.active,
+        .info-control .control-button.active {
+            background: #e6e6e6;
+            border-left: 3px solid #333;
+        }
+
+        .control-button .icon {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
         }
 
         .info-banner {
-            position: absolute;
-            top: 45px;
+            position: fixed;
+            top: calc(56px + 2rem + 50px); /* Add height of button */
             right: 20px;
             width: 300px;
             background: white;
@@ -264,14 +278,28 @@
     </header>
 
     <div class="page-controls">
-        <button class="timezone-toggle" id="timezone-toggle">🌐 Show Time Zones</button>
-        <button class="info-toggle">ℹ️ About Time Zones</button>
-        <div class="info-banner">
-            <h3>About This Time Zone Map</h3>
-            <p>This map shows actual time zones based on official geographical boundaries using GeoJSON data.</p>
-            <p>Time zones follow political borders and regional decisions rather than strict longitudinal lines, which is why you'll see irregular shapes and variations across different regions.</p>
-            <p>The colors indicate the offset from UTC (Coordinated Universal Time), with different shades representing varying time differences. Click on any region to see its specific time zone details.</p>
-        </div>
+        <button class="control-button" id="timezone-toggle">
+            <span class="icon">🌐</span>
+            <span class="label">Show Time Zones</span>
+        </button>
+        <button class="control-button" id="terminator-toggle">
+            <span class="icon">🌓</span>
+            <span class="label">Show Day/Night</span>
+        </button>
+    </div>
+
+    <div class="info-control">
+        <button class="control-button" id="info-toggle">
+            <span class="icon">ℹ️</span>
+            <span class="label">About Time Zones</span>
+        </button>
+    </div>
+
+    <div class="info-banner">
+        <h3>About This Time Zone Map</h3>
+        <p>This map shows actual time zones based on official geographical boundaries using GeoJSON data.</p>
+        <p>Time zones follow political borders and regional decisions rather than strict longitudinal lines, which is why you'll see irregular shapes and variations across different regions.</p>
+        <p>Click on a region to see timezone information.</p>
     </div>
 
     <main class="main-content">
@@ -432,65 +460,57 @@
         let timezonesVisible = false;
 
         function loadTimezoneBorders() {
-        fetch('/api/timezone-borders')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (timezoneBorders) {
-                map.removeLayer(timezoneBorders);
-            }
+            fetch('/api/timezone-borders')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (timezoneBorders) {
+                        map.removeLayer(timezoneBorders);
+                    }
 
-            timezoneBorders = L.geoJSON(data, {
-                style: function(feature) {
-                    return {
-                        color: '#333',
-                        weight: 1,
-                        fillColor: getColorForOffset(feature.properties.offset),
-                        fillOpacity: 0.3
-                    };
-                },
-                onEachFeature: function(feature, layer) {
-                    // Remove popup binding and only keep the click handler
-                    layer.on('click', function(e) {
-                        updateTimezoneInfo(feature.properties.tzid);
-                    });
+                    timezoneBorders = L.geoJSON(data, {
+                        style: function(feature) {
+                            return {
+                                color: '#333',
+                                weight: 1,
+                                fillColor: getColorForOffset(feature.properties.offset),
+                                fillOpacity: 0.3
+                            };
+                        },
+                        onEachFeature: function(feature, layer) {
+                            layer.on('click', function(e) {
+                                updateTimezoneInfo(feature.properties.tzid);
+                            });
 
-                    // Keep hover effects
-                    layer.on('mouseover', function(e) {
-                        this.setStyle({
-                            fillOpacity: 0.6
-                        });
-                    });
-                    layer.on('mouseout', function(e) {
-                        this.setStyle({
-                            fillOpacity: 0.3
-                        });
-                    });
-                }
-            }).addTo(map);
-        })
-        .catch(error => {
-            console.error('Error loading timezone data:', error);
-            alert('Failed to load timezone data. Please try again later.');
-        });
-    }
+                            layer.on('mouseover', function(e) {
+                                this.setStyle({
+                                    fillOpacity: 0.6
+                                });
+                            });
+                            layer.on('mouseout', function(e) {
+                                this.setStyle({
+                                    fillOpacity: 0.3
+                                });
+                            });
+                        }
+                    }).addTo(map);
+                })
+                .catch(error => {
+                    console.error('Error loading timezone data:', error);
+                    alert('Failed to load timezone data. Please try again later.');
+                });
+        }
 
-        // Add terminator toggle button
-        const terminatorToggle = document.createElement('button');
-        terminatorToggle.className = 'timezone-toggle';
-        terminatorToggle.style.top = '120px';
-        terminatorToggle.textContent = '🌓 Show Day/Night';
-        document.querySelector('.page-controls').appendChild(terminatorToggle);
-
-        // Toggle button functionality
-        document.getElementById('timezone-toggle').addEventListener('click', () => {
+        function toggleTimezones() {
             timezonesVisible = !timezonesVisible;
             const button = document.getElementById('timezone-toggle');
-            button.textContent = timezonesVisible ? '🌐 Hide Time Zones' : '🌐 Show Time Zones';
+            button.classList.toggle('active');
+            const label = button.querySelector('.label');
+            label.textContent = timezonesVisible ? 'Hide Time Zones' : 'Show Time Zones';
             
             if (timezonesVisible) {
                 if (!timezoneBorders) {
@@ -501,12 +521,14 @@
             } else if (timezoneBorders) {
                 map.removeLayer(timezoneBorders);
             }
-        });
+        }
 
-        // Modified toggle function for terminator
         function toggleTerminator() {
             terminatorVisible = !terminatorVisible;
-            terminatorToggle.textContent = terminatorVisible ? '🌓 Hide Day/Night' : '🌓 Show Day/Night';
+            const button = document.getElementById('terminator-toggle');
+            button.classList.toggle('active');
+            const label = button.querySelector('.label');
+            label.textContent = terminatorVisible ? 'Hide Day/Night' : 'Show Day/Night';
             
             if (terminatorVisible) {
                 lastDrawTime = 0;
@@ -524,26 +546,33 @@
             }
         }
 
-        // Add event listener for terminator toggle
-        terminatorToggle.addEventListener('click', toggleTerminator);
-
-        // Info toggle functionality
-        const infoToggle = document.querySelector('.info-toggle');
-        const infoBanner = document.querySelector('.info-banner');
         let infoVisible = false;
+        const infoBanner = document.querySelector('.info-banner');
 
-        function toggleInfoBanner() {
+        function toggleInfoBanner(event) {
+            // Prevent the click from propagating to the document
+            event.stopPropagation();
+            
             infoVisible = !infoVisible;
+            const button = document.getElementById('info-toggle');
+            button.classList.toggle('active');
             infoBanner.style.display = infoVisible ? 'block' : 'none';
-            infoToggle.textContent = infoVisible ? '✕ Close' : 'ℹ️ About Time Zones';
+            const label = button.querySelector('.label');
+            label.textContent = infoVisible ? 'Close Info' : 'About Time Zones';
         }
 
-        infoToggle.addEventListener('click', toggleInfoBanner);
+        document.getElementById('timezone-toggle').addEventListener('click', toggleTimezones);
+        document.getElementById('terminator-toggle').addEventListener('click', toggleTerminator);
+        document.getElementById('info-toggle').addEventListener('click', toggleInfoBanner);
 
-        // Close info banner when clicking outside
         document.addEventListener('click', (e) => {
-            if (infoVisible && !infoBanner.contains(e.target) && !infoToggle.contains(e.target)) {
-                toggleInfoBanner();
+            if (infoVisible && !infoBanner.contains(e.target) && !e.target.closest('#info-toggle')) {
+                infoVisible = false;
+                const button = document.getElementById('info-toggle');
+                button.classList.remove('active');
+                infoBanner.style.display = 'none';
+                const label = button.querySelector('.label');
+                label.textContent = 'About Time Zones';
             }
         });
 

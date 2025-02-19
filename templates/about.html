@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - World Time Zones</title>
     <style>
-        /* Original styles remain the same */
         * {
             margin: 0;
             padding: 0;
@@ -23,6 +22,8 @@
             background-color: #333;
             color: white;
             padding: 1rem;
+            position: relative;
+            z-index: 1000;
         }
 
         nav {
@@ -38,17 +39,30 @@
             font-weight: bold;
         }
 
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+
         .nav-links a {
             color: white;
             text-decoration: none;
             margin-left: 1.5rem;
         }
 
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
         main {
             max-width: 1000px;
             margin: 2rem auto;
             padding: 0 1rem;
-            padding-bottom: 5rem;
+            padding-bottom: 1rem; 
         }
 
         .section {
@@ -120,10 +134,11 @@
         }
 
         a:hover {
-            text-decoration: underline;
+            opacity: 0.8;
+            text-decoration: none;
         }
 
-        /* New styles for slideshow */
+        /* Slideshow styles */
         .slideshow-container {
             position: relative;
             max-width: 800px;
@@ -145,6 +160,7 @@
             object-fit: contain;
             border-radius: 8px;
             margin-bottom: 1rem;
+            cursor: pointer;
         }
 
         .slide-caption {
@@ -164,10 +180,12 @@
             color: white;
             font-weight: bold;
             font-size: 18px;
-            transition: 0.6s ease;
+            transition: background-color 0.6s ease;
             border-radius: 0 3px 3px 0;
             user-select: none;
             background-color: rgba(0,0,0,0.8);
+            z-index: 2;
+            text-decoration: none;
         }
 
         .next {
@@ -177,6 +195,7 @@
 
         .prev:hover, .next:hover {
             background-color: rgba(0,0,0,0.9);
+            text-decoration: none;
         }
 
         .dot-container {
@@ -198,24 +217,59 @@
         .dot.active, .dot:hover {
             background-color: #717171;
         }
+
+        /* Fullscreen styles */
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 90vh;
+            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+
+        .close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1001;
+        }
     </style>
 </head>
 <body>
-    <!-- Header and navigation remain the same -->
     <header>
         <nav>
-            <div class="logo">World Time Zones</div>
+            <div class="logo">
+                <a href="/">World Time Zones</a>
+            </div>
             <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/favorites">Favorites</a>
-                <a href="/map">Map</a>
-                <a href="/about">About</a>
+                <a href="/" id="home-link">Home</a>
+                <a href="/favorites" id="favorites-link">Favorites</a>
+                <a href="/map" id="map-link">Map</a>
+                <a href="/about" id="about-link" class="active">About</a>
             </div>
         </nav>
     </header>
 
     <main>
-        <!-- Original sections remain the same -->
         <section class="section">
             <h1>About World Time Zones</h1>
             <p>A comprehensive web application built with Go that provides real-time information about different countries, their time zones, and development statistics.</p>
@@ -256,6 +310,11 @@
                     <p>Human Development Index data from UNDP Human Development Report 2023/2024</p>
                     <p>Source: <a href="https://hdr.undp.org/data-center/human-development-index" target="_blank" rel="noopener noreferrer">HDI Data Center</a></p>
                 </div>
+                <div class="endpoint">
+                    <h3>Leaflet.js API</h3>
+                    <p>Interactive mapping library used for geographical visualization</p>
+                    <p>Source: <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet.js</a></p>
+                </div>
             </div>
         </section>
 
@@ -279,27 +338,26 @@
             <p>The timezone boundary data is processed using geojsplit to optimize performance. This splits the large GeoJSON file (timezones-with-oceans-now.geojson.zip) into smaller, more manageable chunks while maintaining full functionality.</p>
         </section>
 
-        <!-- New slideshow section -->
         <section class="section">
             <h2>Development Progress</h2>
             <div class="slideshow-container">
                 <div class="slide">
-                    <img src="/static/images/1.png" alt="Incorrect timezone borders overlay">
+                    <img src="/static/images/1.png" alt="Incorrect timezone borders overlay" onclick="openFullscreen(this)">
                     <div class="slide-caption">Incorrect timezone borders overlay</div>
                 </div>
             
                 <div class="slide">
-                    <img src="/static/images/2.png" alt="Missing timezones in waters and Antarctica">
+                    <img src="/static/images/2.png" alt="Missing timezones in waters and Antarctica" onclick="openFullscreen(this)">
                     <div class="slide-caption">Missing timezones in waters and Antarctica</div>
                 </div>
             
                 <div class="slide">
-                    <img src="/static/images/3.png" alt="Flawed representation of the terminator line">
+                    <img src="/static/images/3.png" alt="Flawed representation of the terminator line" onclick="openFullscreen(this)">
                     <div class="slide-caption">Flawed representation of the terminator line</div>
                 </div>
             
                 <div class="slide">
-                    <img src="/static/images/4.png" alt="Miscellaneous">
+                    <img src="/static/images/4.png" alt="Miscellaneous" onclick="openFullscreen(this)">
                     <div class="slide-caption">Miscellaneous</div>
                 </div>
             
@@ -315,6 +373,34 @@
             </div>
         </section>
     </main>
+
+    <!-- Fullscreen overlay -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <span class="close-fullscreen" onclick="closeFullscreen()">&times;</span>
+        <img class="fullscreen-image" id="fullscreenImage" src="" alt="">
+    </div>
+
+    <section class="section">
+        <h2>Documentation</h2>
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>Initial Development</h3>
+                <p>Started with the REST Countries v3.1 API integration, followed by creating multiple pages using vanilla HTML. Enhanced the UI with hover animations and theme implementations through CSS.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Map Integration</h3>
+                <p>Integrated Leaflet.js with OpenStreetMap API for the interactive map. Implemented two key overlays: timezone boundaries (using timezone-boundary-builder data) and a custom-built live terminator line showing real-time day/night separation.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Development Process</h3>
+                <p>Documented the journey through screenshots of key challenges, maintained comprehensive inline code comments, and tracked all external resources including APIs and statistical data sources.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Refinement</h3>
+                <p>Gathered user feedback, conducted thorough testing, and fixed identified bugs. Concluded by restructuring the codebase into separate files for improved readability and optimization.</p>
+            </div>
+        </div>
+    </section>
 
     <footer>
         <p>&copy; 2024 World Time Zones. All rights reserved.</p>
@@ -347,6 +433,55 @@
             slides[slideIndex-1].style.display = "block";
             dots[slideIndex-1].className += " active";
         }
+
+        // Updated fullscreen functionality
+        function openFullscreen(img) {
+            const overlay = document.getElementById('fullscreenOverlay');
+            const fullscreenImg = document.getElementById('fullscreenImage');
+            
+            fullscreenImg.src = img.src;
+            fullscreenImg.alt = img.alt;
+            overlay.style.display = 'block';
+            
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFullscreen() {
+            const overlay = document.getElementById('fullscreenOverlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Updated click handlers for fullscreen
+        document.getElementById('fullscreenOverlay').addEventListener('click', function() {
+            closeFullscreen();
+        });
+
+        document.getElementById('fullscreenImage').addEventListener('click', function(e) {
+            e.stopPropagation();  // Prevent overlay click when clicking image
+            closeFullscreen();
+        });
+
+        // Close fullscreen with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('fullscreenOverlay').style.display === 'block') {
+                closeFullscreen();
+            }
+        });
+
+        // Add active class to current page in navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
