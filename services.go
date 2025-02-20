@@ -209,7 +209,6 @@ func parseHDIData(csvContent string) map[string]HDIData {
 	return hdiMap
 }
 
-
 func filterCountries(countries []Country, region, timezone, timeRange string, w http.ResponseWriter, r *http.Request) []Country {
 	if region == "" && timezone == "" && timeRange == "" {
 		return countries
@@ -286,7 +285,6 @@ func getUniqueRegions(countries []Country) []string {
 	sort.Strings(uniqueRegions)
 	return uniqueRegions
 }
-
 
 // getUniqueTimeZones gets unique time zones from countries and standard list
 func getUniqueTimeZones(countries []Country) []string {
