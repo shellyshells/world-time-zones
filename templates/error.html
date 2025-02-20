@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Zone Not Found - World Time Zones</title>
+    <title>{{.ErrorTitle}} - World Time Zones</title>
     <link rel="stylesheet" href="/static/css/error.css">
 </head>
 <body>
@@ -22,16 +22,15 @@
     <main class="main-content">
         <div class="error-container">
             <div class="error-icon">⚠️</div>
-            <h1 class="error-title">Time Zone Not Found</h1>
-            <p class="error-message">The requested time zone could not be found for this region.</p>
+            <h1 class="error-title">{{.ErrorTitle}}</h1>
+            <p class="error-message">{{.ErrorMessage}}</p>
             
             <div class="error-suggestions">
                 <h3>Suggestions:</h3>
                 <ul>
-                    <li>Check if the selected region and time zone combination exists</li>
-                    <li>Try selecting a different region or time zone</li>
-                    <li>View all available time zones for the region</li>
-                    <li>Reset filters and try a new search</li>
+                    {{range .Suggestions}}
+                    <li>{{.}}</li>
+                    {{end}}
                 </ul>
             </div>
 

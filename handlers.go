@@ -16,6 +16,7 @@ var templateFuncs = template.FuncMap{
 	"add":      func(a, b int) int { return a + b },
 }
 
+// Modify the handleHome function in handlers.go
 func handleHome(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("q")
 	region := r.URL.Query().Get("region")
@@ -30,8 +31,25 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	if filteredCountries == nil {
 		return
 	}
+
 	searchedCountries := searchCountries(filteredCountries, query)
-	paginatedCountries, totalPages := paginateCountries(searchedCountries, page)
+
+	// Check if search query was provided and no results were found
+	if query != "" && len(searchedCountries) == 0 {
+		http.Redirect(w, r, "/error?type=search&query="+query, http.StatusSeeOther)
+		return
+	}
+
+	// Calculate total pages before checking page bounds
+	_, totalPages := paginateCountries(searchedCountries, 1)
+
+	// Check if page is greater than the total number of pages
+	if page > totalPages && totalPages > 0 {
+		http.Redirect(w, r, "/error?type=page&max="+strconv.Itoa(totalPages), http.StatusSeeOther)
+		return
+	}
+
+	paginatedCountries, _ := paginateCountries(searchedCountries, page)
 	regions := getUniqueRegions(allCountries)
 	timeZones := getUniqueTimeZones(allCountries)
 
@@ -151,14 +169,66 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleError(w http.ResponseWriter, r *http.Request) {
+	errorType := r.URL.Query().Get("type")
+	query := r.URL.Query().Get("query")
+	maxPage := r.URL.Query().Get("max")
+
+	errorData := struct {
+		ErrorTitle   string
+		ErrorMessage string
+		Suggestions  []string
+	}{}
+
+	// Default error content
+	errorData.ErrorTitle = "Error"
+	errorData.ErrorMessage = "An unexpected error occurred."
+	errorData.Suggestions = []string{"Return to the homepage", "Try again later"}
+
+	// Handle specific error types
+	switch errorType {
+	case "search":
+		errorData.ErrorTitle = "No Results Found"
+		errorData.ErrorMessage = "No countries match your search criteria: '" + query + "'"
+		errorData.Suggestions = []string{
+			"Check your spelling",
+			"Try a more general search term",
+			"Search by region instead",
+			"Browse all countries without filters",
+		}
+	case "timezone":
+		errorData.ErrorTitle = "No Countries in Time Zone"
+		errorData.ErrorMessage = "We couldn't find any countries in the selected time zone."
+		errorData.Suggestions = []string{
+			"Try a different time zone",
+			"Check our world map to see time zone coverage",
+			"Browse all countries without time zone filter",
+		}
+	case "page":
+		errorData.ErrorTitle = "Invalid Page Number"
+		errorData.ErrorMessage = "The requested page number does not exist."
+		if maxPage != "" {
+			if maxPage == "1" {
+				errorData.ErrorMessage += " There is only 1 page available."
+			} else {
+				errorData.ErrorMessage += " Available pages: 1 to " + maxPage + "."
+			}
+		}
+		errorData.Suggestions = []string{
+			"Go to the first page",
+			"Use the pagination controls at the bottom of the page",
+			"Return to the homepage without filters",
+		}
+	}
+
 	tmpl, err := template.ParseFiles("templates/error.html")
 	if err != nil {
 		log.Printf("Error parsing template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+
 	w.WriteHeader(http.StatusNotFound)
-	err = tmpl.Execute(w, nil)
+	err = tmpl.Execute(w, errorData)
 	if err != nil {
 		log.Printf("Error executing template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
