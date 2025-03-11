@@ -116,25 +116,24 @@ func handleFavoriteAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data struct {
-		Country string `json:"country"`
-		Action  string `json:"action"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
-	switch data.Action {
+	country := r.FormValue("country")
+	action := r.FormValue("action")
+	redirectURL := r.FormValue("redirect")
+
+	switch action {
 	case "add":
-		if !contains(favorites.Countries, data.Country) {
-			favorites.Countries = append(favorites.Countries, data.Country)
+		if !contains(favorites.Countries, country) {
+			favorites.Countries = append(favorites.Countries, country)
 		}
 	case "remove":
 		var newFavorites []string
 		for _, c := range favorites.Countries {
-			if c != data.Country {
+			if c != country {
 				newFavorites = append(newFavorites, c)
 			}
 		}
@@ -149,7 +148,7 @@ func handleFavoriteAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
 func handleAbout(w http.ResponseWriter, r *http.Request) {

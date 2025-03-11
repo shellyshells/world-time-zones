@@ -51,9 +51,14 @@
             {{range .Countries}}
             <div class="country-card" ondblclick="handleDoubleClick(event, '{{.Name}}')" data-country="{{.Name}}">
                 <div class="card-face card-front">
-                    <button class="favorite-btn" onclick="toggleFavorite(event, '{{.Name}}')" aria-label="Toggle favorite" data-favorited="{{.IsFavorite}}">
-                        {{if .IsFavorite}}★{{else}}☆{{end}}
-                    </button>
+                    <form action="/api/favorite" method="POST">
+                        <input type="hidden" name="country" value="{{.Name}}">
+                        <input type="hidden" name="action" value="{{if .IsFavorite}}remove{{else}}add{{end}}">
+                        <input type="hidden" name="redirect" value="/?page={{$.CurrentPage}}&q={{$.Query}}&region={{$.Region}}&timezone={{$.TimeZone}}&timerange={{$.TimeRange}}">
+                        <button type="submit" class="favorite-btn" aria-label="Toggle favorite" data-favorited="{{.IsFavorite}}">
+                            {{if .IsFavorite}}★{{else}}☆{{end}}
+                        </button>
+                    </form>
                     <div class="country-info">
                         <span class="country-flag">{{.Flag}}</span>
                         <div class="country-details">
@@ -78,9 +83,14 @@
                     </div>
                 </div>
                 <div class="card-face card-back">
-                    <button class="favorite-btn" onclick="toggleFavorite(event, '{{.Name}}')" aria-label="Toggle favorite" data-favorited="{{.IsFavorite}}">
-                        {{if .IsFavorite}}★{{else}}☆{{end}}
-                    </button>
+                    <form action="/api/favorite" method="POST">
+                        <input type="hidden" name="country" value="{{.Name}}">
+                        <input type="hidden" name="action" value="{{if .IsFavorite}}remove{{else}}add{{end}}">
+                        <input type="hidden" name="redirect" value="/?page={{$.CurrentPage}}&q={{$.Query}}&region={{$.Region}}&timezone={{$.TimeZone}}&timerange={{$.TimeRange}}">
+                        <button type="submit" class="favorite-btn" aria-label="Toggle favorite" data-favorited="{{.IsFavorite}}">
+                            {{if .IsFavorite}}★{{else}}☆{{end}}
+                        </button>
+                    </form>
                     <div class="tab-container">
                         <div class="tab-header">
                             <button class="tab-btn active" onclick="switchTab(event, 'general-tab-{{.Name}}')">General</button>

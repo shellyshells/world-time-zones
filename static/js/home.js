@@ -37,65 +37,6 @@ function submitForm() {
     window.location.href = '?' + params.toString();
 }
 
-const favoriteStates = new Map();
-
-function toggleFavorite(event, countryName) {
-    event.stopPropagation();
-    const btn = event.target;
-    const currentState = btn.dataset.favorited === 'true';
-    const action = currentState ? 'remove' : 'add';
-    
-    updateFavoriteUI(countryName, action);
-    updateFavoriteAPI(countryName, action);
-}
-
-function handleDoubleClick(event, countryName) {
-    const card = event.currentTarget;
-    const favoriteBtn = card.querySelector('.favorite-btn');
-    const currentState = favoriteBtn.dataset.favorited === 'true';
-    const action = currentState ? 'remove' : 'add';
-    
-    updateFavoriteUI(countryName, action);
-    updateFavoriteAPI(countryName, action);
-}
-
-function updateFavoriteUI(countryName, action) {
-    const buttons = document.querySelectorAll(`.country-card[data-country="${countryName}"] .favorite-btn`);
-    buttons.forEach(btn => {
-        btn.textContent = action === 'add' ? '★' : '☆';
-        btn.dataset.favorited = action === 'add' ? 'true' : 'false';
-        
-        btn.classList.add('updating');
-        setTimeout(() => btn.classList.remove('updating'), 300);
-    });
-
-    favoriteStates.set(countryName, action === 'add');
-}
-
-function updateFavoriteAPI(countryName, action) {
-    fetch('/api/favorite', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            country: countryName,
-            action: action
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            const revertAction = action === 'add' ? 'remove' : 'add';
-            updateFavoriteUI(countryName, revertAction);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        const revertAction = action === 'add' ? 'remove' : 'add';
-        updateFavoriteUI(countryName, revertAction);
-    });
-}
-
 document.querySelectorAll('.country-card').forEach(card => {
     card.addEventListener('click', (e) => {
         // Don't flip if clicking the favorite button

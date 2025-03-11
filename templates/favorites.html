@@ -29,7 +29,12 @@
                 {{range .Countries}}
                 <div class="country-card" data-country="{{.Name}}">
                     <div class="card-face card-front">
-                        <button class="favorite-btn" onclick="toggleFavorite(event, '{{.Name}}')" aria-label="Toggle favorite" data-favorited="true">★</button>
+                        <form action="/api/favorite" method="POST">
+                          <input type="hidden" name="country" value="{{.Name}}">
+                          <input type="hidden" name="action" value="remove">
+                          <input type="hidden" name="redirect" value="/favorites">
+                          <button type="submit" class="favorite-btn" aria-label="Toggle favorite" data-favorited="true">★</button>
+                        </form>
                         <div class="country-info">
                             <span class="country-flag">{{.Flag}}</span>
                             <div class="country-details">
@@ -54,7 +59,12 @@
                         </div>
                     </div>
                     <div class="card-face card-back">
-                        <button class="favorite-btn" onclick="toggleFavorite(event, '{{.Name}}')" aria-label="Toggle favorite" data-favorited="true">★</button>
+                        <form action="/api/favorite" method="POST">
+                          <input type="hidden" name="country" value="{{.Name}}">
+                          <input type="hidden" name="action" value="remove">
+                          <input type="hidden" name="redirect" value="/favorites">
+                          <button type="submit" class="favorite-btn" aria-label="Toggle favorite" data-favorited="true">★</button>
+                        </form>
                         <div class="tab-container">
                             <div class="tab-header">
                                 <button class="tab-btn active" onclick="switchTab(event, 'general-tab-{{.Name}}')">General</button>
