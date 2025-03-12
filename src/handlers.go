@@ -17,6 +17,27 @@ var templateFuncs = template.FuncMap{
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
+	// First, validate all query parameters
+	queryParams := r.URL.Query()
+	validParams := []string{"q", "region", "timezone", "timerange", "page"}
+
+	// Check if there are any invalid parameters
+	for param := range queryParams {
+		isValid := false
+		for _, validParam := range validParams {
+			if param == validParam {
+				isValid = true
+				break
+			}
+		}
+
+		if !isValid {
+			// Redirect to error page for invalid query parameter
+			http.Redirect(w, r, "/error?type=invalid_param&param="+param, http.StatusSeeOther)
+			return
+		}
+	}
+
 	query := r.URL.Query().Get("q")
 	region := r.URL.Query().Get("region")
 	timezone := r.URL.Query().Get("timezone")
@@ -175,6 +196,7 @@ func handleError(w http.ResponseWriter, r *http.Request) {
 	errorType := r.URL.Query().Get("type")
 	query := r.URL.Query().Get("query")
 	maxPage := r.URL.Query().Get("max")
+	param := r.URL.Query().Get("param")
 
 	errorData := struct {
 		ErrorTitle   string
@@ -219,6 +241,15 @@ func handleError(w http.ResponseWriter, r *http.Request) {
 		errorData.Suggestions = []string{
 			"Go to the first page",
 			"Use the pagination controls at the bottom of the page",
+			"Return to the homepage without filters",
+		}
+	case "invalid_param":
+		errorData.ErrorTitle = "Invalid URL Parameter"
+		errorData.ErrorMessage = "The URL contains an invalid parameter: '" + param + "'"
+		errorData.Suggestions = []string{
+			"Remove the invalid parameter from the URL",
+			"Check for typos in the URL",
+			"Use the navigation and search forms instead of manually editing the URL",
 			"Return to the homepage without filters",
 		}
 	}
@@ -313,5 +344,37 @@ func handleTimezoneBorders(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(combinedGeoJSON); err != nil {
 		log.Printf("Error encoding combined GeoJSON: %v", err)
 		http.Error(w, "Error processing GeoJSON", http.StatusInternalServerError)
+	}
+}
+
+func handleNotFound(w http.ResponseWriter, r *http.Request) {
+	errorData := struct {
+		ErrorTitle   string
+		ErrorMessage string
+		Suggestions  []string
+	}{
+		ErrorTitle:   "Page Not Found",
+		ErrorMessage: "The page you're looking for doesn't exist: " + r.URL.Path,
+		Suggestions: []string{
+			"Check the URL for typos",
+			"Return to the homepage",
+			"Use the navigation menu to find what you're looking for",
+			"Try searching for a country instead",
+		},
+	}
+
+	tmpl, err := template.ParseFiles("templates/error.html")
+	if err != nil {
+		log.Printf("Error parsing template: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNotFound)
+	err = tmpl.Execute(w, errorData)
+	if err != nil {
+		log.Printf("Error executing template: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 }
