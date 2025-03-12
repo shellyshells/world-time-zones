@@ -1,4 +1,4 @@
-package main
+package src
 
 import (
 	"encoding/json"
@@ -16,7 +16,6 @@ var templateFuncs = template.FuncMap{
 	"add":      func(a, b int) int { return a + b },
 }
 
-// Modify the handleHome function in handlers.go
 func handleHome(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("q")
 	region := r.URL.Query().Get("region")
@@ -316,4 +315,3 @@ func handleTimezoneBorders(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error processing GeoJSON", http.StatusInternalServerError)
 	}
 }
-
