@@ -50,6 +50,11 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paginatedCountries, _ := paginateCountries(searchedCountries, page)
+	// Set IsFavorite for each country
+	for i := range paginatedCountries {
+		paginatedCountries[i].IsFavorite = contains(favorites.Countries, paginatedCountries[i].Name)
+	}
+
 	regions := getUniqueRegions(allCountries)
 	timeZones := getUniqueTimeZones(allCountries)
 
@@ -311,3 +316,4 @@ func handleTimezoneBorders(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error processing GeoJSON", http.StatusInternalServerError)
 	}
 }
+
