@@ -72,7 +72,7 @@ Table of Contents
    go mod tidy
    ```
 
-# Running the Application
+### Running the Application
 1. Start the server:
    ```
    go run main.go
@@ -80,7 +80,7 @@ Table of Contents
 
 2. You should see the message: "Server is running on http://localhost:8080"
 
-# Testing the Application
+### Testing the Application
 Open a web browser and enter http://localhost:8080/
 
 ## Troubleshooting
