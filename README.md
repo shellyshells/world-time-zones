@@ -16,7 +16,7 @@ Table of Contents
 
 ## Structure
 ```
-└── shellyshells-world-time-zones.git/
+    World-Time-Zones/
     ├── README.md
     ├── HDR23-24_Statistical_Annex_HDI_Table - HDI.csv
     ├── favorites.json
@@ -61,7 +61,6 @@ Table of Contents
         └── map.html
 ```
 ## Installation
-
 1. Clone the repository:
    ```
    git clone https://github.com/shellyshells/somebodythatiusedtoknow.git
@@ -74,7 +73,6 @@ Table of Contents
    ```
 
 # Running the Application
-
 1. Start the server:
    ```
    go run main.go
@@ -83,11 +81,9 @@ Table of Contents
 2. You should see the message: "Server is running on http://localhost:8080"
 
 # Testing the Application
-
 Open a web browser and enter http://localhost:8080/
 
 ## Troubleshooting
-
 - Ensure that port 8080 is not being used by another application.
 - If you encounter any errors, make sure you have the latest version of Go installed or restart your computer.
 - In the case of 'Exit Status 1', restart the IDE, ensure multiple terminals are not running simultaneously or spam 'go run main.go'. 
