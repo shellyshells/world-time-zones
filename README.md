@@ -15,6 +15,7 @@ Table of Contents
 [Troubleshooting](#troubleshooting)
 
 ## Structure
+```
 └── shellyshells-world-time-zones.git/
     ├── README.md
     ├── HDR23-24_Statistical_Annex_HDI_Table - HDI.csv
@@ -58,7 +59,7 @@ Table of Contents
         ├── favorites.html
         ├── home.html
         └── map.html
-
+```
 ## Installation
 
 1. Clone the repository:
